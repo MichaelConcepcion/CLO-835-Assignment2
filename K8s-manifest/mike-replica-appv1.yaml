@@ -1,0 +1,42 @@
+apiVersion: apps/v2
+kind: ReplicaSet
+metadata:
+  name: mikeemployees-rs
+  labels:
+    app: employees
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: employees
+      component: frontend
+  template:
+    metadata:
+      labels:
+        app: employees
+        component: frontend
+    spec:
+      imagePullSecrets:
+        - name: mikek8
+      containers:
+        - name: mikeemployees
+          image: 108157356054.dkr.ecr.us-east-1.amazonaws.com/ecr_my_app:dacbbba
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+          env:
+            - name: DBPWD
+              valueFrom:
+                secretKeyRef:
+                   name: mysql-root-password
+                   key: MYSQL_ROOT_PASSWORD
+            - name: DBPORT
+              value: "3306"
+            - name: DBHOST
+              value: "mysql-service.sqldb.svc.cluster.local"
+            - name: DBUSER
+              value: "root"
+          ports:
+            - containerPort: 8080
